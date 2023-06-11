@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NLP Analyzer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #262730;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        form {
+            background-color: #fff;
+            border-radius: 4px;
+            padding: 20px;
+            margin-left: 25%;
+            margin-right: 25%;
+        }
+
+        textarea {
+            width: 97%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        input[type="submit"] {
+            background-color: #262730;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .result-section {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+        }
+
+        .result-section h3 {
+            margin-top: 0;
+        }
+
+        .result-text {
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        .download-button {
+            background-color: #555;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .info-button {
+            display: none;
+            background-color: #262730;
+            color: #fff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            text-align: center;
+            line-height: 24px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .info-box {
+            visibility: hidden;
+            width: 200px;
+            background-color: #262730;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .info-button:hover + .info-box,
+        .info-box:hover {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <h1>NLP Analyzer</h1>
+
+    <form action="/analyze" method="POST" enctype="multipart/form-data">
+        <textarea name="text" rows="4" cols="50" placeholder="Enter text"></textarea>
+        <br>
+        <input type="file" name="file">
+        <br>
+        <input type="submit" value="Analyze">
+    </form>
+
+    <div id="results">
+        <h2>Analysis Results</h2>
+        <div id="morphological" class="result-section">
+            <h3>Morphological Analysis</h3>
+            <div class="info-button">i</div>
+            <div class="info-box">Morphological analysis focuses on the internal structure and forms of words, including inflections, prefixes, suffixes, and root words.</div>
+        </div>
+        <div id="lexical" class="result-section">
+            <h3>Lexical Analysis</h3>
+            <div class="info-button">i</div>
+            <div class="info-box">Lexical analysis focuses on identifying and categorizing individual words or tokens in the text, including their parts of speech and semantic attributes.</div>
+        </div>
+        <div id="syntax" class="result-section">
+            <h3>Syntax Analysis</h3>
+            <div class="info-button">i</div>
+            <div class="info-box">Syntax analysis involves parsing the text to analyze the grammatical structure and relationships between words, phrases, and clauses.</div>
+        </div>
+        <div id="semantic-entity" class="result-section">
+            <h3>Semantic (Entity) Analysis</h3>
+            <div class="info-button">i</div>
+            <div class="info-box">Semantic entity analysis aims to identify and extract named entities or specific information from the text, such as people, organizations, locations, etc.</div>
+        </div>
+        <div id="semantic-similar-words" class="result-section">
+            <h3>Semantic (Similar Words) Analysis</h3>
+            <div class="info-button">i</div>
+            <div class="info-box">Semantic similar words analysis finds words that are contextually similar or related to the given text, helping to identify related concepts or synonyms.</div>
+        </div>
+        <div id="pragmatic" class="result-section">
+            <h3>Pragmatic Analysis</h3>
+            <div class="info-button">i</div>
+            <div class="info-box">Pragmatic analysis focuses on the interpretation and understanding of language in context, considering factors such as speaker intention, implicature, and discourse structure.</div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('form').submit(function(event) {
+                event.preventDefault();
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: '/analyze',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        displayResults(response);
+                        showInfoButtons();
+                    }
+                });
+            });
+
+            function displayResults(results) {
+                displayAnalysisResult(results.morphological, 'morphological');
+                displayAnalysisResult(results.lexical, 'lexical');
+                displayAnalysisResult(results.syntax, 'syntax');
+            }
+
+            function displayAnalysisResult(result, elementId) {
+                var resultSection = $('#' + elementId);
+                var resultText = JSON.stringify(result, null, 2);
+                resultSection.html('<h3>' + capitalizeFirstLetter(elementId) + ' Analysis</h3><pre class="result-text">' + resultText + '</pre>');
+                addDownloadButton(resultText, elementId);
+            }
+
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+
+            function addDownloadButton(resultText, elementId) {
+                var downloadButton = $('<button class="download-button">Download JSON</button>');
+                downloadButton.click(function() {
+                    downloadJsonFile(resultText, elementId);
+                });
+                $('#' + elementId).append(downloadButton);
+            }
+
+            function downloadJsonFile(resultText, elementId) {
+                var data = new Blob([resultText], { type: 'application/json' });
+                var url = URL.createObjectURL(data);
+
+                var downloadLink = $('<a></a>');
+                downloadLink.attr('href', url);
+                downloadLink.attr('download', elementId + '_analysis.json');
+                downloadLink.text('Download JSON');
+
+                downloadLink[0].click();
+                URL.revokeObjectURL(url);
+            }
+
+            function showInfoButtons() {
+                $('.info-button').css('display', 'inline-block');
+            }
+        });
+    </script>
+</body>
+</html>
