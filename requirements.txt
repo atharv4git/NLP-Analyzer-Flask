@@ -2,3 +2,4 @@ flask
 nltk
 stop_words
 gunicorn
+.
