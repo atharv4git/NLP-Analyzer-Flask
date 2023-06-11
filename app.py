@@ -8,6 +8,11 @@ from nltk.corpus import wordnet
 from nltk.tokenize import sent_tokenize
 from nltk import FreqDist
 from nltk.chunk import ne_chunk
+import nltk
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('wordnet')
+nltk.download('maxent_ne_chunker')
 
 app = Flask(__name__)
 
