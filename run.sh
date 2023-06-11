@@ -1,2 +1,2 @@
 python -m pip install --upgrade pip
-python .setup.py install
+python ./setup.py install
