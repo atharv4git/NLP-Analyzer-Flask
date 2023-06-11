@@ -16,6 +16,6 @@ class NLTKDownloadCommand(install):
 setuptools.setup(
     # Other setup configurations...
     cmdclass={
-        '': NLTKDownloadCommand,
+        'install': NLTKDownloadCommand,
     },
 )
