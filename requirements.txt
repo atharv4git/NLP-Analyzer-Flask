@@ -1,5 +1,5 @@
-flask
 nltk
+flask
 stop_words
 gunicorn
 .
